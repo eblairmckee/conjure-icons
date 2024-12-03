@@ -42,7 +42,7 @@ const convertSvgToJsx = async (svgContent: string): Promise<string> => {
     });
 
     if (el.getAttribute("stroke")) {
-      el.setAttribute("stroke", "currentColor");
+      el.setAttribute("stroke", "var(--icon-stroke, inherit)");
     }
     if (el.getAttribute("fill") && el.getAttribute("fill") !== "none") {
       el.setAttribute("fill", "currentColor");
@@ -57,8 +57,8 @@ const convertSvgToJsx = async (svgContent: string): Promise<string> => {
 
     const Icon = forwardRef<SVGSVGElement, SVGProps<SVGSVGElement>>((props, ref) => (
       <svg
-        width="1em"
-        height="1em"
+        width="100%"
+        height="100%"
         viewBox="${viewBox}"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -95,11 +95,11 @@ export const generateIcons = async ({
   inputDir,
   outputDir
 }: IconGeneratorOptions): Promise<void> => {
-  const componentsDir = path.join(outputDir, "components");
+  const iconsDir = path.join(outputDir, "icons");
   const typesDir = path.join(outputDir, "types");
   const utilsDir = path.join(outputDir, "utils");
 
-  [componentsDir, typesDir, utilsDir].forEach((dir) => {
+  [iconsDir, typesDir, utilsDir].forEach((dir) => {
     fs.mkdirSync(dir, { recursive: true });
   });
 
@@ -118,14 +118,14 @@ export const generateIcons = async ({
     };
   });
 
-  // Generate components
+  // Generate icons
   for (const { original, pascal } of iconMap) {
     const svgContent = fs.readFileSync(
       path.join(inputDir, `${original}.svg`),
       "utf8"
     );
     const jsxContent = await convertSvgToJsx(svgContent);
-    fs.writeFileSync(path.join(componentsDir, `${pascal}Icon.tsx`), jsxContent);
+    fs.writeFileSync(path.join(iconsDir, `${pascal}Icon.tsx`), jsxContent);
     console.log(`✓ Generated: ${pascal}Icon`);
   }
 
@@ -136,12 +136,10 @@ export type IconName = ${iconMap.map(({ clean }) => `'${clean}'`).join(" | ")};`
   // Generate icon map
   const iconMapContent = `// This file is auto-generated. Do not edit manually
 import type { FC, SVGProps } from "react";
-import type { IconName } from "../types/types";
+import type { IconName } from "../types/icon-types";
 
 ${iconMap
-  .map(
-    ({ pascal }) => `import ${pascal}Icon from "../components/${pascal}Icon";`
-  )
+  .map(({ pascal }) => `import ${pascal}Icon from "../icons/${pascal}Icon";`)
   .join("\n")}
 
 type IconComponent = FC<SVGProps<SVGSVGElement>>;
@@ -159,16 +157,16 @@ ${
     : ""
 }`;
 
-  fs.writeFileSync(path.join(typesDir, "types.ts"), typeDefinition);
+  fs.writeFileSync(path.join(typesDir, "icon-types.ts"), typeDefinition);
   fs.writeFileSync(path.join(utilsDir, "icon-map.ts"), iconMapContent);
 
   // Generate index file
-  const indexContent = `export type { IconName } from './types/types';
+  const indexContent = `export type { IconName } from './types/icon-types';
 export { IconMap } from './utils/icon-map';
 ${iconMap
   .map(
     ({ pascal }) =>
-      `export { default as ${pascal}Icon } from './components/${pascal}Icon';`
+      `export { default as ${pascal}Icon } from './icons/${pascal}Icon';`
   )
   .join("\n")}`;
 

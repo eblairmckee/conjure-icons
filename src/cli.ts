@@ -2,7 +2,7 @@
 
 import { Command } from "commander";
 import path from "path";
-import { generateIcons } from ".";
+import { generateIcons } from "./conjure";
 
 interface CliOptions {
   input: string;

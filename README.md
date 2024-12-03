@@ -1,12 +1,12 @@
 # @blairwitch/conjure-icons
 
-A CLI tool and library to generate React Icon components from SVG files. Converts your SVG files into fully typed React components with proper TypeScript support.
+A CLI tool and library to conjure fully typed React Icon components from SVG files with proper Typescript support, and CSS custom properties --because why not?
 
 ## Features
 
 - ✨ Converts SVG files to React components
-- 🎯 Generates TypeScript types
-- 🎨 Uses `currentColor` for dynamic coloring
+- 🎯 Generates TypeScript types and IconMap
+- 🎨 Configurable styling with CSS variables
 - 📦 Can be used as a CLI tool or library
 - 🔄 Handles kebab-case to PascalCase conversion
 - 🎁 Generates index file for easy importing
@@ -41,7 +41,22 @@ conjure-icons -i <input-directory> -o <output-directory>
 #### Example
 
 ```bash
-conjure-icons -i ./assets/icons -o ./src/components/icons
+conjure-icons -i ./assets/icons -o ./src/icons
+```
+
+will output:
+
+```
+output-directory/
+├── icons/          # Individual icon components
+│   ├── CheckIcon.tsx
+│   ├── CloseIcon.tsx
+│   └── ...
+├── types/              # TypeScript type definitions
+│   └── icon-types.ts        # Contains IconName type
+├── utils/
+│   └── icon-map.ts     # Maps icon names to components
+└── index.ts           # Exports everything
 ```
 
 ### Library Usage
@@ -53,64 +68,64 @@ import { generateIcons } from "@blairwitch/conjure-icons";
 
 await generateIcons({
   inputDir: "./assets/icons",
-  outputDir: "./src/components/icons"
+  outputDir: "./src/icons"
 });
-```
-
-### Generated Structure
-
-The tool will create the following structure in your output directory:
-
-```
-output-directory/
-├── components/          # Individual icon components
-│   ├── CheckIcon.tsx
-│   ├── CloseIcon.tsx
-│   └── ...
-├── types/              # TypeScript type definitions
-│   └── types.ts
-└── index.ts           # Barrel file exporting all icons
 ```
 
 ### Using Generated Icons
 
+#### Direct Component Usage
+
 ```tsx
-import { CheckIcon, CloseIcon } from "./components/icons";
+import { CheckIcon, CloseIcon } from "./icons";
 
 function MyComponent() {
-  return (
-    <div>
-      <CheckIcon className="w-6 h-6 text-green-500" />
-      <CloseIcon className="w-6 h-6 text-red-500" />
-    </div>
-  );
+  return <CheckIcon />;
+}
+```
+
+#### Using the IconMap
+
+```tsx
+import { IconMap, type IconName } from "./icons";
+
+// Type-safe icon name
+const iconName: IconName = "check";
+
+function DynamicIcon({ name }: { name: IconName }) {
+  const Icon = IconMap[name];
+  return <Icon className="icon-wrapper" />;
 }
 ```
 
 ### Styling Icons
 
-The generated icons use `currentColor` for both `stroke` and `fill` (unless `fill="none"`), making them easy to style with CSS:
+The generated icons are designed to be flexible with styling:
 
 ```css
-/* Using CSS classes */
-.icon-success {
-  color: green;
+/* Size control - icons fill their container */
+.icon-wrapper {
   width: 24px;
   height: 24px;
 }
 
-/* Using Tailwind classes */
-<CheckIcon className="w-6 h-6 text-green-500" />
+/* Color control */
+.icon-success {
+  /* For filled icons */
+  color: green;
+
+  /* For stroked icons */
+  --icon-stroke: #00ff00;
+}
+
+/* Using with Tailwind */
+<div className="w-6 h-6 text-green-500">
+  <CheckIcon />
+</div>
 ```
 
-## Contributing
+#### Styling Properties
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## License
-
-MIT
+- Icons use `width: 100%` and `height: 100%` to fill their container
+- Fill colors use `currentColor` (controlled via CSS `color` property)
+- Stroke colors use `var(--icon-stroke, inherit)` (falls back to inherited color)

@@ -10,7 +10,7 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "build": "tsup",
-    "clean": "rm -rf node_modules bun.lockb"
+    "publish:packages": "npm publish --access public"
   },
   "files": [
     "dist"

@@ -38,31 +38,24 @@ jobs:
       - name: Install Dependencies
         run: bun install
 
+      - name: Build Package
+        run: bun run build
+
       - name: Setup NPM Authentication
         run: |
           echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Create Release Pull Request, Version Packages, and Publish to npm
+      - name: Version and Publish
         id: changesets
         uses: changesets/action@v1
         with:
-          publish: bun run publish:packages
+          version: bun run changeset version
           commit: "chore: version packages"
           title: "chore: version packages"
+          publish: bun publish
           createGithubReleases: true
-          version: bun run changeset version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Notify Discord
-        if: steps.changesets.outputs.published == 'true'
-        uses: Ilshidur/action-discord@master
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        with:
-          args: |
-            📦 New Package Published: ${{ steps.changesets.outputs.publishedPackages[0].name }}@${{ steps.changesets.outputs.publishedPackages[0].version }}
-            📚 Package URL: https://www.npmjs.com/package/${{ steps.changesets.outputs.publishedPackages[0].name }}

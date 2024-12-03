@@ -1,0 +1,68 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+permissions:
+  contents: write
+  pull-requests: write
+  packages: write
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js 20.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20.x
+          registry-url: "https://registry.npmjs.org"
+          scope: "@blairwitch"
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install Dependencies
+        run: bun install
+
+      - name: Setup NPM Authentication
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create Release Pull Request, Version Packages, and Publish to npm
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          publish: bun run publish:packages
+          commit: "chore: version packages"
+          title: "chore: version packages"
+          createGithubReleases: true
+          version: bun run changeset version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Notify Discord
+        if: steps.changesets.outputs.published == 'true'
+        uses: Ilshidur/action-discord@master
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        with:
+          args: |
+            📦 New Package Published: ${{ steps.changesets.outputs.publishedPackages[0].name }}@${{ steps.changesets.outputs.publishedPackages[0].version }}
+            📚 Package URL: https://www.npmjs.com/package/${{ steps.changesets.outputs.publishedPackages[0].name }}

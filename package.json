@@ -1,0 +1,40 @@
+{
+  "name": "@blairwitch/conjure-icons",
+  "version": "0.0.1",
+  "description": "CLI tool to generate React Icon components from SVG files",
+  "type": "module",
+  "bin": {
+    "conjure-icons": "./dist/cli.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsup",
+    "prepublishOnly": "npm run build"
+  },
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "commander": "^11.1.0",
+    "node-html-parser": "^6.1.11",
+    "prettier": "^3.1.0",
+    "react": "^18.2.0",
+    "@types/react": "^18.2.45"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "tsup": "^8.0.1",
+    "@types/node": "^20.10.4"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "keywords": [
+    "svg",
+    "react",
+    "icons",
+    "cli"
+  ],
+  "license": "MIT"
+}

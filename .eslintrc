@@ -1,0 +1,26 @@
+{
+  "extends": ["wesbos/typescript"],
+  "rules": {
+    "no-console": 1,
+    "indent": ["warn", 2],
+    "@typescript-eslint/lines-between-class-members": 0,
+    "@typescript-eslint/no-throw-literal": 0,
+    "quotes": ["warn", "double"],
+    "no-unused-vars": 1,
+    "no-nested-ternary": 0,
+    "import/no-extraneous-dependencies": 1,
+    "prettier/prettier": [
+      "error",
+      {
+        "trailingComma": "none",
+        "singleQuote": false,
+        "jsxSingleQuote": false,
+        "semi": true,
+        "printWidth": 80,
+        "tabWidth": 2,
+        "bracketSpacing": true,
+        "arrowParens": "always"
+      }
+    ]
+  }
+}

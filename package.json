@@ -10,7 +10,7 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "build": "tsup",
-    "prepublishOnly": "npm run build"
+    "clean": "rm -rf node_modules bun.lockb"
   },
   "files": [
     "dist"
@@ -25,7 +25,8 @@
   "devDependencies": {
     "typescript": "^5.3.3",
     "tsup": "^8.0.1",
-    "@types/node": "^20.10.4"
+    "@types/node": "^20.10.4",
+    "@changesets/cli": "^2.27.1"
   },
   "engines": {
     "node": ">=14.0.0"
